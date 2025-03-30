@@ -1,0 +1,592 @@
+import { useState, useRef, useEffect } from 'react';
+import styled from '@emotion/styled';
+import chatService from './services/chatService';
+
+const ChatToggle = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background: #b42823;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+  z-index: 1000;
+  &:hover {
+    transform: scale(1.1);
+    background: #d32f2f;
+  }
+`;
+
+const ChatWidget = styled.div`
+  position: fixed;
+  bottom: ${props => props.isMaximized ? '0' : '20px'};
+  right: ${props => props.isMaximized ? '0' : '20px'};
+  width: ${props => props.isMaximized ? '100%' : 'min(400px, calc(100% - 40px))'};
+  height: ${props => props.isMaximized ? '100vh' : 'min(500px, calc(100vh - 40px))'};
+  background: white;
+  border-radius: ${props => props.isMaximized ? '0' : '10px'};
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  z-index: 999;
+
+  @media (max-width: 480px) {
+    bottom: ${props => props.isMaximized ? '0' : '20px'};
+    right: ${props => props.isMaximized ? '0' : '20px'};
+    width: ${props => props.isMaximized ? '100%' : 'calc(100% - 40px)'};
+    height: ${props => props.isMaximized ? '100vh' : '500px'};
+    border-radius: ${props => props.isMaximized ? '0' : '10px'};
+  }
+`;
+
+const ChatHeader = styled.div`
+  padding: 15px;
+  background: #b42823;
+  color: white;
+  border-radius: ${props => props.isMaximized ? '0' : '10px 10px 0 0'};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: ${props => props.isMaximized ? 'fixed' : 'relative'};
+  top: ${props => props.isMaximized ? '0' : 'auto'};
+  left: ${props => props.isMaximized ? '0' : 'auto'};
+  right: ${props => props.isMaximized ? '0' : 'auto'};
+  width: ${props => props.isMaximized ? '100%' : 'auto'};
+  box-sizing: border-box;
+  z-index: 1000;
+  h3 {
+    margin: 0;
+  }
+
+  @media (max-width: 480px) {
+    padding: ${props => props.isMaximized ? '15px' : '15px'};
+  }
+`;
+
+const DisclaimerSection = styled.div`
+  background: #fff3cd;
+  color: #856404;
+  padding: 8px 15px;
+  font-size: 12px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: ${props => props.isMaximized ? 'fixed' : 'relative'};
+  top: ${props => props.isMaximized ? '60px' : 'auto'};
+  left: ${props => props.isMaximized ? '0' : 'auto'};
+  right: ${props => props.isMaximized ? '0' : 'auto'};
+  z-index: 1000;
+`;
+
+const MaximizeButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const HeaderButton = styled(MaximizeButton)`
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: auto;
+  padding: 0 10px;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+`;
+
+const ChatMessages = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: ${props => props.isMaximized ? '110px' : '0'};
+  
+  @media (max-width: 480px) {
+    padding: 10px;
+    margin-top: ${props => props.isMaximized ? '110px' : '0'};
+  }
+`;
+
+const Message = styled.div`
+  background: ${props => props.sender === 'user' ? '#007bff' : '#f8f9fa'};
+  color: ${props => props.sender === 'user' ? 'white' : '#333'};
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  max-width: 80%;
+  align-self: ${props => props.sender === 'user' ? 'flex-end' : 'flex-start'};
+  font-size: 14px;
+  line-height: 1.5;
+  
+  strong {
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 8px 0;
+    white-space: pre-wrap;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul {
+    margin: 4px 0;
+    padding-left: 20px;
+    
+    li {
+      margin-bottom: 4px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+`;
+
+const ContextSection = styled.div`
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid ${props => props.sender === 'user' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'};
+`;
+
+const ContextGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, auto);
+  gap: 8px;
+  margin-top: 8px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+`;
+
+const ContextCard = styled.div`
+  background: ${props => props.sender === 'user' ? 'rgba(255,255,255,0.1)' : 'white'};
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 1px 3px ${props => props.sender === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.05)'};
+
+  &:hover {
+    background: ${props => props.sender === 'user' ? 'rgba(255,255,255,0.15)' : '#fafafa'};
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px;
+  }
+`;
+
+const ContextTitle = styled.div`
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    line-height: 1.2;
+    -webkit-line-clamp: 3;
+    margin-bottom: 2px;
+  }
+`;
+
+const ContextMeta = styled.div`
+  font-size: 0.75em;
+  color: ${props => props.sender === 'user' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+  }
+`;
+
+const ChatForm = styled.form`
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #dee2e6;
+  
+  @media (max-width: 480px) {
+    padding: 10px;
+  }
+`;
+
+const ChatInput = styled.input`
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+  
+  @media (max-width: 480px) {
+    padding: 6px 10px;
+  }
+`;
+
+const SendButton = styled.button`
+  padding: 8px 16px;
+  background: ${props => props.disabled ? '#cccccc' : '#b42823'};
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  font-size: 14px;
+  
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    min-width: 60px;
+  }
+  
+  &:hover {
+    background: ${props => props.disabled ? '#cccccc' : '#d32f2f'};
+  }
+`;
+
+const LoadingDots = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  span {
+    width: 4px;
+    height: 4px;
+    background-color: white;
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 1.4s infinite ease-in-out both;
+
+    &:nth-child(1) { animation-delay: -0.32s; }
+    &:nth-child(2) { animation-delay: -0.16s; }
+  }
+
+  @keyframes bounce {
+    0%, 80%, 100% { 
+      transform: scale(0);
+    } 
+    40% { 
+      transform: scale(1);
+    }
+  }
+`;
+
+const TypingIndicator = styled(Message)`
+  padding: 12px 16px;
+  min-height: auto;
+  max-width: 100px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    background-color: ${props => props.sender === 'user' ? 'white' : '#b42823'};
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 2px;
+    animation: typing 1s infinite ease-in-out both;
+
+    &:nth-child(1) { animation-delay: 200ms; }
+    &:nth-child(2) { animation-delay: 300ms; }
+    &:nth-child(3) { animation-delay: 400ms; }
+  }
+
+  @keyframes typing {
+    0% { transform: translateY(0px); }
+    28% { transform: translateY(-5px); }
+    44% { transform: translateY(0px); }
+  }
+`;
+
+const ArticleCard = styled.div`
+  background: ${props => props.sender === 'user' ? '#007bff' : '#f8f9fa'};
+  color: ${props => props.sender === 'user' ? 'white' : '#333'};
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+  h4 {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.9;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    font-size: 11px;
+    opacity: 0.8;
+  }
+
+  a {
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: ${props => props.sender === 'user' ? 'rgba(255,255,255,0.1)' : 'rgba(180,40,35,0.1)'};
+    }
+  }
+`;
+
+function App() {
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const messagesEndRef = useRef(null);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    setIsLoading(true);
+    setInputValue(''); // Clear input immediately after sending
+
+    // Add user message
+    setMessages(prev => [...prev, { text: inputValue.trim(), sender: 'user' }]);
+    
+    try {
+      // Create a new message in the UI that we'll update with streaming content
+      const messageId = Date.now().toString();
+      setMessages(prev => [...prev, { id: messageId, text: '', sender: 'bot' }]);
+
+      // Start streaming chat
+      await chatService.createChatStream(
+        inputValue.trim(),
+        (data) => {
+          switch (data.type) {
+            case 'chunk':
+              // Update the current streaming message
+              setMessages(prev => prev.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, text: (msg.text || '') + data.content }
+                  : msg
+              ));
+              break;
+            case 'end':
+              setMessages(prev => prev.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, resources: data.resources }
+                  : msg
+              ));
+              setIsLoading(false);
+              break;
+          }
+        },
+        (error) => {
+          console.error('Error:', error);
+          setMessages(prev => [...prev, { 
+            text: "Sorry, I couldn't process your message at the moment. Please try again later.", 
+            sender: 'bot' 
+          }]);
+          setIsLoading(false);
+        }
+      );
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => [...prev, { 
+        text: "Sorry, I couldn't process your message at the moment. Please try again later.", 
+        sender: 'bot' 
+      }]);
+      setIsLoading(false);
+    }
+  };
+
+  const handleNewChat = () => {
+    chatService.resetConversation();
+    setMessages([]);
+    setInputValue('');
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  return (
+    <div className="App">
+      {!isChatOpen && (
+        <ChatToggle onClick={() => setIsChatOpen(!isChatOpen)}>
+          {isChatOpen ? '✕' : '💬'}
+        </ChatToggle>
+      )}
+
+      {isChatOpen && (
+        <ChatWidget isMaximized={isMaximized}>
+          <ChatHeader isMaximized={isMaximized}>
+            <h3>Live Chat</h3>
+            <ButtonGroup>
+              <HeaderButton onClick={handleNewChat}>
+                📝 New Chat
+              </HeaderButton>
+              <MaximizeButton onClick={() => setIsMaximized(!isMaximized)}>
+                {isMaximized ? '⊡' : '⛶'}
+              </MaximizeButton>
+              <MaximizeButton onClick={() => setIsChatOpen(false)}>✕</MaximizeButton>
+            </ButtonGroup>
+          </ChatHeader>
+          <DisclaimerSection isMaximized={isMaximized}>
+            <span className="material-icons" style={{ fontSize: '16px' }}>info</span>
+            Live Chat dapat membuat kesalahan. Periksa info penting.
+          </DisclaimerSection>
+          <ChatMessages isMaximized={isMaximized}>
+            {messages.map((message, index) => (
+              <Message 
+                key={index} 
+                sender={message.sender}
+              >
+                <div dangerouslySetInnerHTML={{ 
+                  __html: message.text?.split('\n').map(line => {
+                    if (line.trim().startsWith('* ')) {
+                      // Start or continue list
+                      const itemContent = line.trim().substring(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                      return `<li>${itemContent}</li>`;
+                    } else if (line.trim().startsWith('Do you want to:')) {
+                      // Special case for "Do you want to:" line
+                      return `<p>${line}</p><ul>`;
+                    } else if (line.trim() === '') {
+                      // Close list if there's a blank line
+                      return '</ul>';
+                    } else {
+                      // Regular paragraph
+                      return `<p>${line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>`;
+                    }
+                  }).join('')
+                    .replace(/<\/ul><li>/g, '<li>') // Fix adjacent lists
+                    .replace(/<\/p><li>/g, '</p><ul><li>') // Add ul when starting new list
+                    .replace(/<\/li><p>/g, '</li></ul><p>') // Close ul when ending list
+                }} />
+                {message.resources?.length > 0 && (
+                  <div style={{ marginTop: '12px' }}>
+                    <h4 style={{ fontSize: '13px', margin: '0 0 8px 0', opacity: 0.7 }}>Related Articles:</h4>
+                    {message.resources.map((resource, idx) => (
+                      <ArticleCard key={idx} sender={message.sender}>
+                        <h4 dangerouslySetInnerHTML={{ __html: resource.title }} />
+                        <p dangerouslySetInnerHTML={{ __html: resource.content.substring(0, 150) + '...' }} />
+                        <div className="meta">
+                          <span>{new Date(resource.createdAt || new Date()).toLocaleDateString('id-ID', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}</span>
+                          {resource.slug ? (
+                            <a 
+                              href={`https://www.inilah.com/${resource.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Read more →
+                            </a>
+                          ) : null}
+                        </div>
+                      </ArticleCard>
+                    ))}
+                  </div>
+                )}
+              </Message>
+            ))}
+            {isLoading && (
+              <TypingIndicator sender="bot">
+                <span></span>
+                <span></span>
+                <span></span>
+              </TypingIndicator>
+            )}
+            <div ref={messagesEndRef} />
+          </ChatMessages>
+          <ChatForm onSubmit={handleSendMessage}>
+            <ChatInput
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Type a message..."
+              disabled={isLoading}
+            />
+            <SendButton 
+              type="submit" 
+              disabled={!inputValue.trim() || isLoading}
+            >
+              {isLoading ? (
+                <LoadingDots>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </LoadingDots>
+              ) : (
+                'Send'
+              )}
+            </SendButton>
+          </ChatForm>
+        </ChatWidget>
+      )}
+    </div>
+  );
+}
+
+export default App;

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost/v1';
+const API_BASE_URL = 'https://6e83-36-69-191-153.ngrok-free.app/v1';
 const API_TOKEN = 'Bearer app-hXKzdHaeRbKGpxLml1lYeMJe';
 
 class ChatService {
@@ -53,7 +53,7 @@ class ChatService {
                                 case 'message':
                                     onMessage({
                                         type: 'chunk',
-                                        content: data.answer.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'),
+                                        content: data.answer,
                                         messageId: data.message_id
                                     });
                                     break;
@@ -93,7 +93,7 @@ class ChatService {
                                             }
                                         }).filter(Boolean) || []
                                     });
-                                    break;
+                                    return;
 
                                 case 'workflow_finished':
                                     this.currentConversationId = data.conversation_id;

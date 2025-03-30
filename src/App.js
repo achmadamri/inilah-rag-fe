@@ -135,40 +135,20 @@ const ChatMessages = styled.div`
 `;
 
 const Message = styled.div`
-  background: ${props => props.sender === 'user' ? '#007bff' : '#f8f9fa'};
-  color: ${props => props.sender === 'user' ? 'white' : '#333'};
-  padding: 12px 16px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  max-width: 80%;
-  align-self: ${props => props.sender === 'user' ? 'flex-end' : 'flex-start'};
-  font-size: 14px;
-  line-height: 1.5;
-  
-  strong {
-    font-weight: 600;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  max-width: 85%;
+  ${props => props.sender === 'user' ? 'margin-left: auto; background: #f0f0f0;' : 'margin-right: auto; background: white;'}
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 
-  p {
-    margin: 0 0 8px 0;
+  .message-content {
     white-space: pre-wrap;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  ul {
-    margin: 4px 0;
-    padding-left: 20px;
-    
-    li {
-      margin-bottom: 4px;
-      
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
+    word-break: break-word;
+    line-height: 1.5;
   }
 `;
 
@@ -333,7 +313,7 @@ function App() {
     const handleStreamMessage = (data) => {
       switch (data.type) {
         case 'chunk':
-          currentAssistantMessage = data.content;
+          currentAssistantMessage += data.content;  
           currentMessageId = data.messageId;
           setMessages(prev => {
             const newMessages = [...prev];
@@ -425,7 +405,9 @@ function App() {
           <ChatMessages isMaximized={isMaximized}>
             {messages.map((message, index) => (
               <Message key={index} sender={message.sender}>
-                <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                <div className="message-content" dangerouslySetInnerHTML={{ 
+                  __html: message.content.replace(/\n/g, '<br/>') 
+                }} />
                 {message.resources && message.resources.length > 0 && (
                   <ContextSection sender={message.sender}>
                     <strong>Related Articles:</strong>
