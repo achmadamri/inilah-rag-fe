@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost/v1';
+const API_BASE_URL = 'https://df21-36-69-191-153.ngrok-free.app/v1';
 const API_TOKEN = 'Bearer app-hXKzdHaeRbKGpxLml1lYeMJe';
 
 class ChatService {
