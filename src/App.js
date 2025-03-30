@@ -149,6 +149,23 @@ const Message = styled.div`
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.5;
+
+    ul {
+      margin: 8px 0;
+      padding-left: 20px;
+      list-style-type: disc;
+    }
+
+    li {
+      margin-bottom: 6px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    strong {
+      font-weight: 600;
+    }
   }
 `;
 
@@ -406,7 +423,19 @@ function App() {
             {messages.map((message, index) => (
               <Message key={index} sender={message.sender}>
                 <div className="message-content" dangerouslySetInnerHTML={{ 
-                  __html: message.content.replace(/\n/g, '<br/>') 
+                  __html: message.content
+                    .split('\n')
+                    .map(line => {
+                      if (line.trim().startsWith('*') && !line.trim().startsWith('**')) {
+                        return `<li>${line.trim().substring(1).trim()}</li>`;
+                      }
+                      return line;
+                    })
+                    .join('\n')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/(?<=<li>.*)\n|^\n(?=.*<li>)/g, '')
+                    .replace(/(<li>.*?<\/li>)/g, '<ul>$1</ul>')
+                    .replace(/\n/g, '<br/>')
                 }} />
                 {message.resources && message.resources.length > 0 && (
                   <ContextSection sender={message.sender}>
@@ -416,7 +445,7 @@ function App() {
                         <ContextCard 
                           key={idx} 
                           sender={message.sender}
-                          onClick={() => window.open(`/article/${resource.slug}`, '_blank')}
+                          onClick={() => window.open(`https://www.inilah.com/${resource.slug}`, '_blank')}
                         >
                           <h4 dangerouslySetInnerHTML={{ __html: resource.title }} />
                           <p dangerouslySetInnerHTML={{ __html: resource.content }} />

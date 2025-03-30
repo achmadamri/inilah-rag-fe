@@ -51,9 +51,10 @@ class ChatService {
                             
                             switch (data.event) {
                                 case 'message':
+                                    // Preserve raw text format for bullets (*) and bold (**)
                                     onMessage({
                                         type: 'chunk',
-                                        content: data.answer.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'),
+                                        content: data.answer,
                                         messageId: data.message_id
                                     });
                                     break;
