@@ -448,6 +448,9 @@ function App() {
                           onClick={() => window.open(`https://www.inilah.com/${resource.slug}`, '_blank')}
                         >
                           <h4 dangerouslySetInnerHTML={{ __html: resource.title }} />
+                          <p style={{ color: '#666', fontSize: '0.9em' }}>
+                            📅 <span dangerouslySetInnerHTML={{ __html: resource.createdAt }} />
+                          </p>
                           <p dangerouslySetInnerHTML={{ __html: resource.content }} />
                         </ContextCard>
                       ))}

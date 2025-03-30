@@ -1,9 +1,19 @@
 const API_BASE_URL = 'https://df21-36-69-191-153.ngrok-free.app/v1';
-const API_TOKEN = 'Bearer app-hXKzdHaeRbKGpxLml1lYeMJe';
+const API_TOKEN = 'Bearer app-K0caa7VqU1JF1woR30B4nr6t';
 
 class ChatService {
     constructor() {
         this.currentConversationId = '';
+        this.userId = this.getUserId();
+    }
+
+    getUserId() {
+        let userId = localStorage.getItem('chat_user_id');
+        if (!userId) {
+            userId = 'user-' + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('chat_user_id', userId);
+        }
+        return userId;
     }
 
     // Create a streaming chat connection
@@ -13,7 +23,7 @@ class ChatService {
             query: message,
             response_mode: 'streaming',
             conversation_id: this.currentConversationId,
-            user: 'user-123',
+            user: this.userId,
             files: []
         };
 
