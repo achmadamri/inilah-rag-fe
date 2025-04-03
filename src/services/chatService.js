@@ -1,6 +1,6 @@
 const API_BASE_URL = 'https://4a7c-125-165-153-79.ngrok-free.app/v1';
-const API_TOKEN = 'Bearer app-K0caa7VqU1JF1woR30B4nr6t'; // Inilah Knowledge Retreival + Chatbot V1.0
-// const API_TOKEN = 'Bearer app-laZF658vxNy1J8wddwIatvo7'; // Inilah Knowledge Retreival + Chatbot V1.1
+// const API_TOKEN = 'Bearer app-K0caa7VqU1JF1woR30B4nr6t'; // Inilah Knowledge Retreival + Chatbot V1.0
+const API_TOKEN = 'Bearer app-laZF658vxNy1J8wddwIatvo7'; // Inilah Knowledge Retreival + Chatbot V1.1
 
 class ChatService {
     constructor() {
