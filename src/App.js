@@ -402,7 +402,7 @@ function App() {
       {isChatOpen && (
         <ChatWidget isMaximized={isMaximized}>
           <ChatHeader isMaximized={isMaximized}>
-            <h3>Chat Assistant</h3>
+            <h3>Inilah.com AI Chat Assistant</h3>
             <ButtonGroup>
               <HeaderButton onClick={handleReset}>
                 <span>🔄</span>
