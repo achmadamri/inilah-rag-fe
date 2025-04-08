@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { ClipLoader } from 'react-spinners';
 import chatService from './services/chatService';
 
 const ChatToggle = styled.button`
@@ -223,6 +224,15 @@ const ContextCard = styled.div`
   }
 `;
 
+const LoadingSpinner = styled.span`
+  display: inline-block;
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  animation: spin 1s linear infinite;
+`;
+
 const ChatInput = styled.div`
   padding: 15px;
   border-top: 1px solid #dee2e6;
@@ -402,7 +412,7 @@ function App() {
       {isChatOpen && (
         <ChatWidget isMaximized={isMaximized}>
           <ChatHeader isMaximized={isMaximized}>
-            <h3>Inilah.com AI Chat Assistant</h3>
+            <h3>Inilah AI</h3>
             <ButtonGroup>
               <HeaderButton onClick={handleReset}>
                 <span>🔄</span>
@@ -416,7 +426,7 @@ function App() {
 
           <DisclaimerSection isMaximized={isMaximized}>
             <span>ℹ️</span>
-            <span>AI responses may be inaccurate. Please verify important information.</span>
+            <span>Respons AI mungkin tidak akurat. Harap verifikasi informasi penting.</span>
           </DisclaimerSection>
 
           <ChatMessages isMaximized={isMaximized}>
@@ -468,11 +478,11 @@ function App() {
               value={inputValue}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
+              placeholder="Tulis pesanmu..."
               disabled={isTyping}
             />
             <button onClick={handleSendMessage} disabled={!inputValue.trim() || isTyping}>
-              {isTyping ? '...' : 'Send'}
+              {isTyping ? <ClipLoader size={15} color="#ffffff" /> : 'Kirim'}
             </button>
           </ChatInput>
         </ChatWidget>
