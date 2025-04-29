@@ -478,7 +478,7 @@ function App() {
               value={inputValue}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              placeholder="Tulis pesanmu..."
+              placeholder="Tulis pertanyaanmu..."
               disabled={isTyping}
             />
             <button onClick={handleSendMessage} disabled={!inputValue.trim() || isTyping}>

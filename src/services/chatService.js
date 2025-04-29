@@ -1,8 +1,5 @@
-const API_BASE_URL = 'https://6ada-180-252-174-147.ngrok-free.app/v1';
-// const API_TOKEN = 'Bearer app-K0caa7VqU1JF1woR30B4nr6t'; // Inilah Knowledge Retreival + Chatbot V1.0
-// const API_TOKEN = 'Bearer app-IvBmvNFn2AjHq8M76xssIUaT'; // Inilah Knowledge Retreival + Chatbot V1.1
-const API_TOKEN = 'Bearer app-blP9enlyPZBiFZbKoCGICOAH'; // Inilah AI Chat Assistant v1.0
-
+const API_BASE_URL = 'https://c328-125-165-153-65.ngrok-free.app/v1';
+const API_TOKEN = 'Bearer app-kwBCK9HhoIVgNXFeOkUJkpTB'; // PROD - Inilah.com AI Chat Assistant v2.4
 class ChatService {
     constructor() {
         this.currentConversationId = '';
