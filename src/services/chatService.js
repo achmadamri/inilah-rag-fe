@@ -109,7 +109,6 @@ class ChatService {
                                     this.currentConversationId = data.conversation_id;
                                     onMessage({
                                         type: 'complete',
-                                        content: data.data.outputs.answer,
                                         messageId: data.message_id
                                     });
                                     break;
