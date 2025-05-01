@@ -1,5 +1,6 @@
-const API_BASE_URL = 'https://c328-125-165-153-65.ngrok-free.app/v1';
-const API_TOKEN = 'Bearer app-kwBCK9HhoIVgNXFeOkUJkpTB'; // PROD - Inilah.com AI Chat Assistant v2.4
+const API_BASE_URL = 'https://6b79-180-244-20-224.ngrok-free.app/v1';
+const API_TOKEN = 'Bearer app-I37bJyxpOgQ92i5pUK8SYVrO'; // PROD - Inilah.com AI Chat Assistant v3.0
+
 class ChatService {
     constructor() {
         this.currentConversationId = '';
