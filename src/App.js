@@ -372,9 +372,6 @@ function App() {
             
             return newMessages;
           });
-          break;
-
-        case 'complete':
           setIsTyping(false);
           break;
       }
