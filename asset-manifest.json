@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/inilah-rag-fe/static/css/main.e6c13ad2.css",
-    "main.js": "/inilah-rag-fe/static/js/main.8bb948ce.js",
+    "main.js": "/inilah-rag-fe/static/js/main.e4dd1c65.js",
     "static/js/453.0db72923.chunk.js": "/inilah-rag-fe/static/js/453.0db72923.chunk.js",
     "index.html": "/inilah-rag-fe/index.html",
     "main.e6c13ad2.css.map": "/inilah-rag-fe/static/css/main.e6c13ad2.css.map",
-    "main.8bb948ce.js.map": "/inilah-rag-fe/static/js/main.8bb948ce.js.map",
+    "main.e4dd1c65.js.map": "/inilah-rag-fe/static/js/main.e4dd1c65.js.map",
     "453.0db72923.chunk.js.map": "/inilah-rag-fe/static/js/453.0db72923.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.8bb948ce.js"
+    "static/js/main.e4dd1c65.js"
   ]
 }
