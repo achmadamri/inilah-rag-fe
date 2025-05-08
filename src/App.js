@@ -440,6 +440,7 @@ function App() {
                     })
                     .join('\n')
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/(?<!\*)\*((?!\*)[^*]+)\*(?!\*)/g, '<strong>$1</strong>')
                     .replace(/(?<=<li>.*)\n|^\n(?=.*<li>)/g, '')
                     .replace(/(<li>.*?<\/li>)/g, '<ul>$1</ul>')
                     .replace(/\n/g, '<br/>')
