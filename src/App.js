@@ -444,9 +444,9 @@ function App() {
                     .replace(/(<li>.*?<\/li>)/g, '<ul>$1</ul>')
                     .replace(/\n/g, '<br/>')
                 }} />
-                {message.resources && message.resources.length > 0 && (
+                {message.resources && message.resources.length > 0 && !message.content.toLowerCase().includes('saya tidak tahu') && (
                   <ContextSection sender={message.sender}>
-                    <strong>Related Articles:</strong>
+                    <strong>Artikel Terkait:</strong>
                     <ContextGrid>
                       {message.resources.map((resource, idx) => (
                         <ContextCard 

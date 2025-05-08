@@ -1,5 +1,6 @@
-const API_BASE_URL = 'https://6b79-180-244-20-224.ngrok-free.app/v1';
-const API_TOKEN = 'Bearer app-ehwbNA4uhLoRsq0gxaQPU0Jb'; // PROD - Inilah.com AI Chat Assistant v3.1
+const API_BASE_URL = 'https://eaeb-35-184-20-69.ngrok-free.app/v1';
+// const API_BASE_URL = 'http://35.184.20.69/v1';
+const API_TOKEN = 'Bearer app-hFsTfLM5u5Z4sAZd30pSyk5I'; // PROD - Inilah.com AI Chat Assistant v3.1
 
 class ChatService {
     constructor() {
@@ -69,7 +70,7 @@ class ChatService {
                                     });
                                     break;
 
-                                case 'message_end':
+                                case 'message_end':             
                                     onMessage({
                                         type: 'end',
                                         messageId: data.message_id,
@@ -117,6 +118,10 @@ class ChatService {
                                 case 'error':
                                     onError(data.message);
                                     return;
+
+                                default:
+                                    // console.warn('Unhandled event type:', data.event);
+                                    break;
                             }
                         } catch (e) {
                             console.error('Error parsing SSE data:', e);
